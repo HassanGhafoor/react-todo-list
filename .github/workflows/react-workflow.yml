@@ -17,7 +17,7 @@ jobs:
           with: 
               aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Using secrets for access key
               aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # Using secrets for secret key
-              aws-region: ${{ env.AWS_REGION }}  # Using repo variable for the region
+              aws-region: ${{ vars.AWS_REGION }}  # Using repo variable for the region
 
         - name: Setup Docker Buildx
           uses: docker/setup-buildx-action@v3
