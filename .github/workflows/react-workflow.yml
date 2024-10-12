@@ -2,7 +2,7 @@ name: CI/CD Workflow  # Naming the workflow
 
 on:                   # Selecting the trigger
   push:
-    branches: main
+    branches: master
 
 jobs:
   build:
