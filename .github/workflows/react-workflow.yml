@@ -1,1 +1,38 @@
-# This is start of workflow file
+name: CI/CD Workflow  # Naming the workflow
+
+on:                   # Selecting the trigger
+  push:
+    branches: main
+
+jobs:
+  build:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2  # Checkout the code from the repository
+
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with: 
+              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Using secrets for access key
+              aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # Using secrets for secret key
+              aws-region: ${{ env.AWS_REGION }}  # Using repo variable for the region
+
+        - name: Setup Docker Buildx
+          uses: docker/setup-buildx-action@v3
+          with:
+              install: true  # Install Docker Buildx
+
+        - name: Configure AWS ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1  # Log in to Amazon ECR
+
+        - name: Extract Commit ID
+          run: echo "COMMIT_ID=$(echo $GITHUB_SHA | cut -c 1-7)" >> $GITHUB_ENV  # Extracting and storing the commit ID
+
+        - name: Build Docker Image
+          run: docker build -t react-app-docker:${{ env.COMMIT_ID }} .  # Build the Docker image with the short commit ID
+
+        - name: Pushing Docker image to ECR
+          run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.COMMIT_ID }}  # Push the Docker image to ECR
