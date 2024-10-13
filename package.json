@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "nodemon server/server.js",
-    "build": "webpack --mode production"  
+    "build": "webpack --mode production"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
     "express": "^4.13.4",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
-    "webpack": "^5.88.2",          // Updated
-    "webpack-cli": "^4.10.0"       // Updated
+    "webpack": "^5.88.2",
+    "webpack-cli": "^4.10.0"
   }
 }
