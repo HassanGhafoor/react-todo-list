@@ -2,37 +2,48 @@ name: CI/CD Workflow  # Naming the workflow
 
 on:                   # Selecting the trigger
   push:
-    branches: master
+    branches: master  # Run the workflow when there's a push to the master branch
 
 jobs:
   build:
-      runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2  # Checkout the code from the repository
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # Checkout the code from the repository
 
-        - name: Configure AWS Credentials
-          uses: aws-actions/configure-aws-credentials@v1
-          with: 
-              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Using secrets for access key
-              aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # Using secrets for secret key
-              aws-region: ${{ vars.AWS_REGION }}  # Using repo variable for the region
+      - name: Set up Node.js
+        uses: actions/setup-node@v2  # Set up the Node.js environment
+        with:
+          node-version: '16'  # Specify Node.js version 16
 
-        - name: Setup Docker Buildx
-          uses: docker/setup-buildx-action@v3
-          with:
-              install: true  # Install Docker Buildx
+      - name: Install dependencies
+        run: npm install  # Install dependencies (this will create package-lock.json if not present)
 
-        - name: Configure AWS ECR
-          id: login-ecr
-          uses: aws-actions/amazon-ecr-login@v1  # Log in to Amazon ECR
+      - name: Build the application
+        run: npm run build  # Run the build script defined in your package.json
 
-        - name: Extract Commit ID
-          run: echo "COMMIT_ID=$(echo $GITHUB_SHA | cut -c 1-7)" >> $GITHUB_ENV  # Extracting and storing the commit ID
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with: 
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Using secrets for access key
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # Using secrets for secret key
+          aws-region: ${{ env.AWS_REGION }}  # Set your AWS region
 
-        - name: Build Docker Image
-          run: docker build -t react-app-docker:${{ env.COMMIT_ID }} .  # Build the Docker image with the short commit ID
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true  # Install Docker Buildx
 
-        - name: Pushing Docker image to ECR
-          run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.COMMIT_ID }}  # Push the Docker image to ECR
+      - name: Configure AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1  # Log in to Amazon ECR
+
+      - name: Extract Commit ID
+        run: echo "COMMIT_ID=$(echo $GITHUB_SHA | cut -c 1-7)" >> $GITHUB_ENV  # Extract and store the short commit ID
+
+      - name: Build Docker Image
+        run: docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_ID }} .  # Build the Docker image with commit ID as the tag
+
+      - name: Push Docker image to ECR
+        run: docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_ID }}  # Push the Docker image to ECR
