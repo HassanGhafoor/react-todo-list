@@ -21,9 +21,7 @@
     "express": "^4.13.4",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
-    "webpack": "^1.12.13",
-    "webpack-cli": "^4.7.2" 
+    "webpack": "^5.88.2",          // Updated
+    "webpack-cli": "^4.10.0"       // Updated
   }
 }
-
-
