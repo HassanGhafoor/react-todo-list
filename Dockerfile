@@ -1,25 +1,23 @@
-# Use an official Node.js runtime as a parent image
-FROM node:16
+# Use a Node.js base image
+FROM node:18
 
-# Set the working directory in the container
-WORKDIR /app
+# Set the working directory
+WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json (if available)
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy the rest of your application files
+# Copy the rest of your application code
 COPY . .
 
-# Build the React app for production
+# Build the application
 RUN npm run build
 
-# Expose the port your app runs on
+# Expose the application port (adjust if necessary)
 EXPOSE 3000
 
-# Command to run your app
-CMD ["npm", "start"]
-
-
+# Command to run the application
+CMD ["node", "server/server.js"]

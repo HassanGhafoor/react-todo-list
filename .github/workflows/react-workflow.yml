@@ -15,7 +15,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2  # Set up the Node.js environment
         with:
-          node-version: '16'  # Specify Node.js version 16
+          node-version: '18'  # Specify Node.js version 16
 
       - name: Install dependencies
         run: npm install  # Install dependencies (this will create package-lock.json if not present)
@@ -28,7 +28,7 @@ jobs:
         with: 
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Using secrets for access key
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # Using secrets for secret key
-          aws-region: ${{ env.AWS_REGION }}  # Set your AWS region
+          aws-region: ${{ vars.AWS_REGION }}  # Set your AWS region
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -43,7 +43,7 @@ jobs:
         run: echo "COMMIT_ID=$(echo $GITHUB_SHA | cut -c 1-7)" >> $GITHUB_ENV  # Extract and store the short commit ID
 
       - name: Build Docker Image
-        run: docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_ID }} .  # Build the Docker image with commit ID as the tag
+        run: docker build -t ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ env.COMMIT_ID }} .  # Build the Docker image with commit ID as the tag
 
       - name: Push Docker image to ECR
-        run: docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_ID }}  # Push the Docker image to ECR
+        run: docker push ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ env.COMMIT_ID }}  # Push the Docker image to ECR
