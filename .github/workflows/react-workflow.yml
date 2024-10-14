@@ -43,7 +43,8 @@ jobs:
         run: echo "COMMIT_ID=$(echo $GITHUB_SHA | cut -c 1-7)" >> $GITHUB_ENV  # Extract and store the short commit ID
 
       - name: Build Docker Image
-        run: docker build -t ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ env.COMMIT_ID }} .  # Build the Docker image with commit ID as the tag
+        run: docker build -t ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ env.COMMIT_ID }} -f Dockerfile .
+
 
       - name: List Docker Images
         run: docker images  # List all Docker images to verify the build
