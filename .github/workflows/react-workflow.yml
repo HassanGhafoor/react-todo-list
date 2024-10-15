@@ -28,25 +28,31 @@ jobs:
       - name: Build React App
         run: npm run build
 
-      # Step 5: Log in to Amazon ECR using the AWS region from repository variables
-      - name: Log in to Amazon ECR
-        env:
-          AWS_REGION: ${{ vars.AWS_REGION }}
-        run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 329599640783.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
+      # Step 5: Configure AWS credentials for authentication
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
 
-      # Step 6: Build the Docker image for the React app
+      # Step 6: Log in to Amazon ECR using the AWS region from repository variables
+      - name: Log in to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin 329599640783.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
+
+      # Step 7: Build the Docker image for the React app
       - name: Build Docker Image
         run: |
           docker build -t my-app:latest .
 
-      # Step 7: Tag the Docker image with the GitHub commit SHA
+      # Step 8: Tag the Docker image with the GitHub commit SHA
       - name: Tag Docker Image with Commit SHA
         run: |
           COMMIT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           docker tag my-app:latest 329599640783.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/todo-list-react-app:$COMMIT_SHA
 
-      # Step 8: Push the Docker image to Amazon ECR
+      # Step 9: Push the Docker image to Amazon ECR
       - name: Push Docker Image to ECR
         run: |
           COMMIT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
