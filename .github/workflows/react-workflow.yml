@@ -1,4 +1,4 @@
-name: CI/CD Workflow  # Naming the workflows
+name: CI/CD Workflow  # Naming the workflow
 
 on:                   # Selecting the trigger
   push:
